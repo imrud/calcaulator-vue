@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sk_Calculator</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        #app{
+            width: 350px;
+            height: 500px;
+        background: #CEC9C9;
+        padding-top: 20px;
+        padding-left: 20px;
+        padding-right: 20px;
+
+        }
+        .res{
+            width: 345px;
+            height: 70px;
+            background-color: #D9D9D9;
+            margin-bottom: 40px;
+            text-align: right;
+
+        }
+        #res{
+            font-size: 45px;
+        }
+
+        .cSpace{
+            background-color: #D9D9D9;
+            width: 345px;
+            height: 370px;
+
+        } 
+        #btnLine1{
+            margin-bottom: 10px;
+        }
+        #btnLine2{
+            margin-bottom: 10px;
+        }
+        #btnLine3{
+            margin-bottom: 10px;
+        }
+        #btnLine4{
+            margin-bottom: 10px;
+        }
+        .btn{
+            width: 86px;
+            height: 85px;
+            background-color: #E0C7D3;
+            border: 0.01rem solid rgba(217, 217, 217, 0.5);
+            font-size: 32px;
+        } 
+        .btn:active{
+        box-shadow: inset rgba(0, 0, 0, 0.04) 0px 3px 5px;
+        }
+
+        .btn:hover{
+            background-color: #D8B3C5;
+        }
+
+        
+      </style>
+</head>
+<body>
+    <h2>계산기</h2>
+    <div id ="app">
+        <div class='res'>
+            <span id='res'> {{result}}</span>
+        </div>
+
+        <div class='cSpace'>
+            <div id='btnLine1'>
+                <!--맨 윗줄 -->
+                <button class='btn' @click='btnAllClear()'>AC</button>
+                <button class='btn' @click="btnClick(0)">0</button>
+                <button class='btn' @click='btnOperate(0)'>/</button>
+                <button class='btn' @click='btnResult()'>=</button>
+            </div>
+            <div id='btnLine2'>
+                <!--7, 8, 9, X -->
+                <button class='btn' @click="btnClick(7)">7</button>
+                <button class='btn' @click="btnClick(8)">8</button>
+                <button class='btn' @click="btnClick(9)">9</button>
+                <button class='btn' @click='btnOperate(1)'>X</button>
+            </div>
+            <div id='btnLine3'>
+                <!-- 4, 5, 6, - -->
+                <button class='btn'  @click="btnClick(4)">4</button>
+                <button class='btn' @click="btnClick(5)">5</button>
+                <button class='btn' @click="btnClick(6)">6</button>
+                <button class='btn' @click='btnOperate(2)'>-</button>
+            </div>
+            <div id='btnLine4'>
+                <!-- 1, 2, 3, + -->
+                <button class='btn' @click="btnClick(1)">1</button>
+                <button class='btn' @click="btnClick(2)">2</button>
+                <button class='btn' @click="btnClick(3)">3</button>
+                <button class='btn' @click='btnOperate(4)'>+</button>
+            </div>
+
+        </div>
+                
+    </div>
+    <script>
+        const { createApp, ref } = Vue;
+
+
+        const app = createApp({
+            setup(){
+                // 초기 참조 0
+                const result = ref(0);
+                let tmp = 0;
+                let opCode = -1;    // 연산자 클릭 여부
+                let flag = -1;
+                let rflag = -1;     // '=' 클릭 여부
+
+                // AC 버튼 클릭 -> 초기화
+                const btnAllClear = () =>{
+                    result.value = 0;
+                    opCode = -1;
+                }
+
+                // 숫자 버튼 클릭 시
+                const btnClick = (num) =>{
+                    if(rflag != -1){
+                        // 결과 버튼을 누른 경우
+                        result.value = 0;
+                        rflag = -1;
+                    }else{
+                        if(opCode != -1 && flag == -1){
+                            // 연산자 선택한 경우  
+                            tmp = result.value;
+                            result.value = 0;
+                            flag = 1;
+                        }
+                    }
+                    result.value = result.value*10 + num;
+                }
+
+                // 사칙연산 클릭 시 -> 해당 연산자 정보 저장
+                const btnOperate = (op) => {
+                    if(opCode == -1){
+                        // 처음 연산자를 눌렀을 경우
+                        if (op == 0){
+                            opCode=0;
+                            tmp = result.value;
+                         }else if (op == 1){
+                            opCode=1;
+                            tmp = result.value;
+                        }else if (op == 2){
+                            opCode=2;
+                            tmp = result.value;
+                        }else{
+                            opCode=3;
+                            tmp = result.value;
+                         }
+                    }else{
+                        // 피연산자가 존재한 경우
+                        // 1. 중간 계산하기
+                        btnResult();
+                        tmp = result.value;
+                        // 2. 입력 받은 연산자로 update 
+                        if (op == 0){
+                            console.log("/");
+                            opCode=0;
+                         }else if (op == 1){
+                            opCode=1;
+                        }else if (op == 2){
+                            opCode=2;
+                        }else{
+                            opCode=3;
+                         }
+                    }
+                }
+
+
+                // 결과 클릭 시
+                const btnResult = () =>{
+                    if (opCode == 0){
+                        console.log("tmp : "+tmp);
+                        console.log("result : "+result.value);
+                        result.value = tmp / result.value;
+                    }else if (opCode == 1){
+                        result.value = tmp * result.value;
+                    }else if (opCode == 2){
+                        result.value = tmp - result.value;
+                    }else if(opCode == 3){
+
+                        result.value = tmp + result.value;
+                    }
+                    console.log("결과 : "+opCode+", result.value : "+result.value);
+                    opCode = -1;
+                    flag = -1;
+                    rflag = 1;  // 결과버튼 클릭시 update
+                }
+
+                return{
+                    result,
+                    btnAllClear,
+                    btnClick,
+                    btnOperate,
+                    btnResult,
+                }
+            }
+            
+
+        })
+
+        app.mount('#app');
+
+
+    </script>
+</body>
+</html>
